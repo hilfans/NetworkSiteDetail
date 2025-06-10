@@ -45,4 +45,3 @@ Initial release of Network Site Details plugin for WordPress Multisite.
 
 == Support ==
 For support and bug reports, please visit: https://github.com/rihansen11/NetworkSiteDetail
-test

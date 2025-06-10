@@ -2,6 +2,7 @@
 
 namespace PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
+use Composer\Pcre\Preg;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx\Namespaces;
 use PhpOffice\PhpSpreadsheet\Shared\Drawing as SharedDrawing;
@@ -67,6 +68,7 @@ class Drawing extends WriterPart
         }
 
         // unparsed AlternateContent
+        /** @var string[][][][] */
         $unparsedLoadedData = $worksheet->getParentOrThrow()->getUnparsedLoadedData();
         if (isset($unparsedLoadedData['sheets'][$worksheet->getCodeName()]['drawingAlternateContents'])) {
             foreach ($unparsedLoadedData['sheets'][$worksheet->getCodeName()]['drawingAlternateContents'] as $drawingAlternateContent) {
@@ -507,7 +509,7 @@ class Drawing extends WriterPart
     private function writeVMLHeaderFooterImage(XMLWriter $objWriter, string $reference, HeaderFooterDrawing $image): void
     {
         // Calculate object id
-        if (preg_match('{(\d+)}', md5($reference), $m) !== 1) {
+        if (!Preg::isMatch('{(\d+)}', md5($reference), $m)) {
             // @codeCoverageIgnoreStart
             throw new WriterException('Regexp failure in writeVMLHeaderFooterImage');
             // @codeCoverageIgnoreEnd

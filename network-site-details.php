@@ -4,7 +4,7 @@
  * Plugin URI: https://it.telkomuniversity.ac.id/
  * Description: Displays additional details like post count, last accessed date, and visitor count for each subsite in a WordPress multisite network. Also supports exporting data and displays them on a dashboard with charts.
  * Version: 1.0
- * Author: Rihansen Purba, Ryan Gusman Banjarnahor, Zafran, Muhammad Kafaby
+ * Author: Rihansen Purba, Ryan Gusman Banjarnahor, Zafran, Muhammad Kafaby, hilfans, telkomuniversity-github, telkomuniversity-puti
  * Author URI: https://github.com/rihansen11/NetworkSiteDetails
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html

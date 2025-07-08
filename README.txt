@@ -1,6 +1,6 @@
 === Network Site Details ===
-Contributors: rihansen11, ryangusman, zhafran, Muhammadkafaby
-Tags: multisite, dashboard, export, data
+Contributors: rihansen11, ryangusman, zhafran, Muhammadkafaby, telkomuniversity-github, hilfans
+Tags: wordpress, multisite, dashboard, export, data
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4

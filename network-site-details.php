@@ -3,7 +3,7 @@
  * Plugin Name: Network Site Details
  * Plugin URI: https://it.telkomuniversity.ac.id/
  * Description: Adds Post Count column to the Network Admin's All Sites screen and provides a shortcode for a detailed network report dashboard with caching.
- * Version: 4.0.1
+ * Version: 4.0.2
  * Author: Rihansen Purba, Ryan Gusman Banjarnahor, Zafran, Muhammad Kafaby, <a href="https://msp.web.id" target="_blank">Hilfan</a>
  * Author URI: https://github.com/rihansen11/NetworkSiteDetails
  * License: GPLv2 or later
@@ -187,21 +187,21 @@ class Network_Site_Details_Enhancer {
     public function enqueue_shortcode_assets() {
         global $post;
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'network_site_details_report')) {
-            wp_enqueue_style('nsd-shortcode-styles', plugin_dir_url(__FILE__) . 'assets/css/shortcode-style.css', array(), '3.9.0');
+            wp_enqueue_style('nsd-shortcode-styles', plugin_dir_url(__FILE__) . 'assets/css/shortcode-style.css', array(), '4.0.1');
             
             $chart_dependencies = array('jquery');
             $show_chart = get_site_option('nsd_show_chart', '1') === '1';
 
             if ($show_chart) {
-                // 1. Daftarkan script Chart.js dari file lokal
+                // 1. Register Chart.js script from local file
                 wp_enqueue_script('chart-js', plugin_dir_url(__FILE__) . 'assets/js/chart.min.js', array(), '4.4.0', true);
                 
-                // 2. Tambahkan 'chart-js' sebagai dependensi untuk script dasbor
+                // 2. Add 'chart-js' as a dependency for the dashboard script
                 $chart_dependencies[] = 'chart-js';
             }
 
-            // 3. Muat script dasbor dengan dependensi yang sudah benar
-            wp_enqueue_script('nsd-shortcode-script', plugin_dir_url(__FILE__) . 'assets/js/shortcode-dashboard.js', $chart_dependencies, '3.9.0', true);
+            // 3. Load the dashboard script with the correct dependencies
+            wp_enqueue_script('nsd-shortcode-script', plugin_dir_url(__FILE__) . 'assets/js/shortcode-dashboard.js', $chart_dependencies, '4.0.1', true);
             
             wp_localize_script('nsd-shortcode-script', 'nsd_ajax', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
@@ -285,7 +285,8 @@ class Network_Site_Details_Enhancer {
             ];
         }
 
-        set_site_transient($this->transient_name, $data_to_cache, MONTH_IN_SECONDS);
+        // Cache the data for 3 months
+        set_site_transient($this->transient_name, $data_to_cache, 3 * MONTH_IN_SECONDS);
         return $data_to_cache;
     }
 

@@ -3,7 +3,7 @@
  * Plugin Name: Network Site Details
  * Plugin URI: https://it.telkomuniversity.ac.id/
  * Description: Adds Post Count column to the Network Admin's All Sites screen and provides a shortcode for a detailed network report dashboard with caching.
- * Version: 3.7.3
+ * Version: 3.7.4
  * Author: Rihansen Purba, Ryan Gusman Banjarnahor, Zafran, Muhammad Kafaby, <a href="https://msp.web.id" target="_blank">Hilfan</a>
  * Author URI: https://github.com/rihansen11/NetworkSiteDetails
  * License: GPLv2 or later
@@ -151,12 +151,11 @@ class Network_Site_Details_Enhancer {
                 }
                 
                 $sorted_ids = array_keys($site_post_counts);
-                if (empty($sorted_ids)) {
-                    $sorted_ids = [0];
-                }
                 
-                $query->set('site__in', $sorted_ids);
-                $query->set('orderby', 'site__in');
+                // FIX: The fatal error is caused by using `set()`, which does not exist on WP_Site_Query.
+                // We must modify the `query_vars` array directly instead.
+                $query->query_vars['site__in'] = $sorted_ids;
+                $query->query_vars['orderby'] = 'site__in';
             }
         }
     }

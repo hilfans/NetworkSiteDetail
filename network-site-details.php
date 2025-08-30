@@ -3,7 +3,7 @@
  * Plugin Name: Network Site Details
  * Plugin URI: https://it.telkomuniversity.ac.id/
  * Description: Adds Post Count column to the Network Admin's All Sites screen and provides a shortcode for a detailed network report dashboard with caching.
- * Version: 3.7.4
+ * Version: 3.9.0
  * Author: Rihansen Purba, Ryan Gusman Banjarnahor, Zafran, Muhammad Kafaby, <a href="https://msp.web.id" target="_blank">Hilfan</a>
  * Author URI: https://github.com/rihansen11/NetworkSiteDetails
  * License: GPLv2 or later
@@ -19,6 +19,7 @@ class Network_Site_Details_Enhancer {
 
     private $transient_name = 'nsd_dashboard_data';
     private $settings_page_slug = 'network-site-details-settings';
+    private $option_group = 'nsd_settings_group';
 
     public function __construct() {
         // Admin hooks
@@ -31,6 +32,7 @@ class Network_Site_Details_Enhancer {
         
         // Settings Page and Links
         add_action('network_admin_menu', array($this, 'add_settings_page'));
+        add_action('network_admin_edit_update_nsd_settings', array($this, 'save_settings'));
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'add_settings_link'));
         add_filter('network_admin_plugin_action_links_' . plugin_basename(__FILE__), array($this, 'add_settings_link'));
 
@@ -41,32 +43,36 @@ class Network_Site_Details_Enhancer {
         add_action('wp_ajax_nopriv_nsd_refresh_cache', array($this, 'ajax_refresh_cache'));
     }
 
-    /**
-     * Add a settings link to the plugin's entry on the plugins page.
-     */
     public function add_settings_link($links) {
         $settings_link = '<a href="' . network_admin_url('sites.php?page=' . $this->settings_page_slug) . '">' . __('Settings') . '</a>';
         array_unshift($links, $settings_link);
         return $links;
     }
 
-    /**
-     * Add the settings page to the Network Admin menu under "Sites".
-     */
     public function add_settings_page() {
-        add_submenu_page(
-            'sites.php', // Parent slug
-            'Network Site Details Settings', // Page title
-            'Site Details Report', // Menu title
-            'manage_sites', // Capability
-            $this->settings_page_slug, // Menu slug
-            array($this, 'render_settings_page') // Callback function
-        );
+        add_submenu_page('sites.php', 'Network Site Details Settings', 'Site Details Report', 'manage_sites', $this->settings_page_slug, array($this, 'render_settings_page'));
     }
 
-    /**
-     * Render the content of the settings page.
-     */
+    public function save_settings() {
+        check_admin_referer('nsd-settings-nonce');
+        
+        if (!current_user_can('manage_sites')) {
+            wp_die(__('You do not have sufficient permissions to access this page.'));
+        }
+
+        $show_chart = isset($_POST['nsd_show_chart']) ? '1' : '0';
+        $show_stats = isset($_POST['nsd_show_stats']) ? '1' : '0';
+
+        update_site_option('nsd_show_chart', $show_chart);
+        update_site_option('nsd_show_stats', $show_stats);
+
+        // Clear the cache so changes are reflected immediately
+        delete_site_transient($this->transient_name);
+
+        wp_redirect(add_query_arg('updated', 'true', network_admin_url('sites.php?page=' . $this->settings_page_slug)));
+        exit;
+    }
+
     public function render_settings_page() {
         ?>
         <style>
@@ -76,33 +82,53 @@ class Network_Site_Details_Enhancer {
             .nsd-settings-sidebar .card { margin-bottom: 20px; }
             .nsd-donate-button { display: inline-block; background-color: #0073aa; color: #fff !important; padding: 10px 15px; text-decoration: none; border-radius: 4px; text-align: center; font-weight: 600; margin-top: 10px; }
             .nsd-donate-button:hover { background-color: #005a87; }
+            .nsd-settings-form-table th { width: 200px; }
         </style>
         <div class="wrap">
             <h1><?php _e('Network Site Details - Settings & Information', 'network-site-details'); ?></h1>
             
+            <?php if (isset($_GET['updated']) && $_GET['updated'] === 'true') : ?>
+                <div id="message" class="updated notice is-dismissible"><p><?php _e('Settings saved and cache cleared.', 'network-site-details'); ?></p></div>
+            <?php endif; ?>
+
             <div class="nsd-settings-wrap">
                 <div class="nsd-settings-main">
-                    <p><?php _e('This plugin enhances your multisite network by providing more insights into site activity.', 'network-site-details'); ?></p>
+                    <form method="post" action="edit.php?action=update_nsd_settings">
+                        <?php wp_nonce_field('nsd-settings-nonce'); ?>
+                        
+                        <div class="card">
+                            <h2><?php _e('Shortcode Dashboard Settings', 'network-site-details'); ?></h2>
+                            <p><?php _e('Use these options to control which components are displayed on the shortcode dashboard. Disabling components will also prevent their data from being calculated, improving performance.', 'network-site-details'); ?></p>
+                            <table class="form-table nsd-settings-form-table">
+                                <tr valign="top">
+                                    <th scope="row"><?php _e('Display Growth Chart', 'network-site-details'); ?></th>
+                                    <td>
+                                        <label for="nsd_show_chart">
+                                            <input name="nsd_show_chart" type="checkbox" id="nsd_show_chart" value="1" <?php checked(get_site_option('nsd_show_chart', '1'), '1'); ?> />
+                                            <?php _e('Show the "Content Growth per Year" chart.', 'network-site-details'); ?>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr valign="top">
+                                    <th scope="row"><?php _e('Display Statistics Cards', 'network-site-details'); ?></th>
+                                    <td>
+                                        <label for="nsd_show_stats">
+                                            <input name="nsd_show_stats" type="checkbox" id="nsd_show_stats" value="1" <?php checked(get_site_option('nsd_show_stats', '1'), '1'); ?> />
+                                            <?php _e('Show the key statistics cards (Total Sites, Total Posts, etc.).', 'network-site-details'); ?>
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                            <?php submit_button(); ?>
+                        </div>
+                    </form>
 
-                    <div class="card">
-                        <h2><?php _e('Admin Columns Feature', 'network-site-details'); ?></h2>
-                        <p><?php _e('This plugin adds a sortable <strong>"Post Count"</strong> column to the <a href="sites.php">All Sites</a> screen. You can show or hide this column using the "Screen Options" tab at the top right of that page.', 'network-site-details'); ?></p>
-                        <p><?php _e('Additionally, an <strong>"Export to CSV"</strong> button is available, allowing you to download a report of all sites with key metrics.', 'network-site-details'); ?></p>
-                    </div>
-
-                    <div class="card">
-                        <h2><?php _e('Dashboard Shortcode Feature', 'network-site-details'); ?></h2>
+                     <div class="card">
+                        <h2><?php _e('Shortcode Usage', 'network-site-details'); ?></h2>
                         <p><?php _e('You can display a beautiful, interactive dashboard of your network\'s statistics on any page or post by using the following shortcode:', 'network-site-details'); ?></p>
                         <p><input type="text" value="[network_site_details_report]" readonly="readonly" class="large-text code"></p>
-                        
-                        <h3><?php _e('Dashboard Features:', 'network-site-details'); ?></h3>
-                        <ul>
-                            <li><strong><?php _e('Growth Chart:', 'network-site-details'); ?></strong> <?php _e('Visualizes the total number of posts published across all sites, grouped by year.', 'network-site-details'); ?></li>
-                            <li><strong><?php _e('Key Statistics:', 'network-site-details'); ?></strong> <?php _e('At-a-glance view of Total Sites, Total Posts, Active Sites (updated in the last 3 months), and Average Posts per Site.', 'network-site-details'); ?></li>
-                            <li><strong><?php _e('Interactive Controls:', 'network-site-details'); ?></strong> <?php _e('Instantly search, sort, and filter the site list without page reloads.', 'network-site-details'); ?></li>
-                            <li><strong><?php _e('Performance:', 'network-site-details'); ?></strong> <?php _e('The dashboard uses a caching system (data is refreshed monthly) to ensure it loads quickly and doesn\'t overload the server. Use the "Refresh Data" button on the dashboard for an immediate update.', 'network-site-details'); ?></li>
-                        </ul>
                     </div>
+
                 </div>
 
                 <div class="nsd-settings-sidebar">
@@ -110,7 +136,7 @@ class Network_Site_Details_Enhancer {
                         <h2 class="title"><strong>Support & Donation</strong></h2>
                         <div class="inside">
                             <p>This plugin is proudly supported by Telkom University. Your donations help us to continue development and support for this plugin.</p>
-                            <a href="https://endowment.telkomuniversity.ac.id/manfaat-endowment/" target="_blank" rel="dofollow" class="nsd-donate-button"><?php _e('♥ Donate Here ♥', 'network-site-details'); ?></a>
+                            <a href="https://endowment.telkomuniversity.ac.id/donasi-langsung/" target="_blank" rel="dofollow" class="nsd-donate-button"><?php _e('♥ Donate Here ♥', 'network-site-details'); ?></a>
                         </div>
                     </div>
                 </div>
@@ -152,8 +178,6 @@ class Network_Site_Details_Enhancer {
                 
                 $sorted_ids = array_keys($site_post_counts);
                 
-                // FIX: The fatal error is caused by using `set()`, which does not exist on WP_Site_Query.
-                // We must modify the `query_vars` array directly instead.
                 $query->query_vars['site__in'] = $sorted_ids;
                 $query->query_vars['orderby'] = 'site__in';
             }
@@ -163,9 +187,12 @@ class Network_Site_Details_Enhancer {
     public function enqueue_shortcode_assets() {
         global $post;
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'network_site_details_report')) {
-            wp_enqueue_style('nsd-shortcode-styles', plugin_dir_url(__FILE__) . 'assets/css/shortcode-style.css', array(), '3.7.0');
-            wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js', array(), '4.4.0', true);
-            wp_enqueue_script('nsd-shortcode-script', plugin_dir_url(__FILE__) . 'assets/js/shortcode-dashboard.js', array('jquery', 'chart-js'), '3.7.0', true);
+            wp_enqueue_style('nsd-shortcode-styles', plugin_dir_url(__FILE__) . 'assets/css/shortcode-style.css', array(), '3.9.0');
+            $show_chart = get_site_option('nsd_show_chart', '1') === '1';
+            if ($show_chart) {
+                wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js', array(), '4.4.0', true);
+            }
+            wp_enqueue_script('nsd-shortcode-script', plugin_dir_url(__FILE__) . 'assets/js/shortcode-dashboard.js', array('jquery'), '3.9.0', true);
             
             wp_localize_script('nsd-shortcode-script', 'nsd_ajax', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
@@ -186,13 +213,15 @@ class Network_Site_Details_Enhancer {
         if (false !== $cached_data) {
             return $cached_data;
         }
+        
+        $show_chart = get_site_option('nsd_show_chart', '1') === '1';
+        $show_stats = get_site_option('nsd_show_stats', '1') === '1';
 
         $all_sites_data = [];
         $total_posts = 0;
         $active_sites_count = 0;
         $three_months_ago = strtotime('-3 months');
         $posts_by_year = [];
-
         $sites = get_sites(['number' => 0]);
 
         foreach ($sites as $site) {
@@ -201,53 +230,51 @@ class Network_Site_Details_Enhancer {
             $post_count = (int) wp_count_posts()->publish;
             $user_count = count_users()['total_users'];
             
-            $posts_query = new WP_Query(['posts_per_page' => -1, 'post_status' => 'publish', 'fields' => 'ids']);
-            if ($posts_query->have_posts()) {
-                foreach($posts_query->posts as $post_id) {
-                    $year = get_the_date('Y', $post_id);
-                    if (!isset($posts_by_year[$year])) {
-                        $posts_by_year[$year] = 0;
+            if ($show_chart) {
+                $posts_query = new WP_Query(['posts_per_page' => -1, 'post_status' => 'publish', 'fields' => 'ids']);
+                if ($posts_query->have_posts()) {
+                    foreach($posts_query->posts as $post_id) {
+                        $year = get_the_date('Y', $post_id);
+                        if (!isset($posts_by_year[$year])) { $posts_by_year[$year] = 0; }
+                        $posts_by_year[$year]++;
                     }
-                    $posts_by_year[$year]++;
                 }
+                wp_reset_postdata();
             }
-            wp_reset_postdata();
             restore_current_blog();
 
-            $total_posts += $post_count;
-            $last_updated_timestamp = strtotime($site_details->last_updated);
-            if ($last_updated_timestamp > $three_months_ago) {
-                $active_sites_count++;
+            if ($show_stats) {
+                $total_posts += $post_count;
+                $last_updated_timestamp = strtotime($site_details->last_updated);
+                if ($last_updated_timestamp > $three_months_ago) {
+                    $active_sites_count++;
+                }
             }
 
             $all_sites_data[] = [
-                'name'         => $site_details->blogname,
-                'url'          => $site_details->domain . $site_details->path,
-                'home_url'     => $site_details->home,
-                'last_updated' => $site_details->last_updated,
-                'registered'   => $site_details->registered,
-                'users'        => $user_count,
-                'post_count'   => $post_count,
+                'name' => $site_details->blogname, 'url' => $site_details->domain . $site_details->path,
+                'home_url' => $site_details->home, 'last_updated' => $site_details->last_updated,
+                'registered' => $site_details->registered, 'users' => $user_count, 'post_count' => $post_count,
             ];
         }
+        
+        $data_to_cache = ['sites' => $all_sites_data];
 
-        ksort($posts_by_year);
-        $total_sites = count($sites);
-        $avg_posts = ($total_sites > 0) ? round($total_posts / $total_sites) : 0;
-
-        $data_to_cache = [
-            'sites' => $all_sites_data,
-            'stats' => [
-                'total_sites' => $total_sites,
-                'total_posts' => $total_posts,
-                'active_sites' => $active_sites_count,
-                'avg_posts' => $avg_posts,
-            ],
-            'chart_data' => [
-                'labels' => array_keys($posts_by_year),
-                'data'   => array_values($posts_by_year),
-            ]
-        ];
+        if ($show_stats) {
+            $total_sites = count($sites);
+            $avg_posts = ($total_sites > 0) ? round($total_posts / $total_sites) : 0;
+            $data_to_cache['stats'] = [
+                'total_sites' => $total_sites, 'total_posts' => $total_posts,
+                'active_sites' => $active_sites_count, 'avg_posts' => $avg_posts,
+            ];
+        }
+        
+        if ($show_chart) {
+            ksort($posts_by_year);
+            $data_to_cache['chart_data'] = [
+                'labels' => array_keys($posts_by_year), 'data' => array_values($posts_by_year),
+            ];
+        }
 
         set_site_transient($this->transient_name, $data_to_cache, MONTH_IN_SECONDS);
         return $data_to_cache;
@@ -256,12 +283,21 @@ class Network_Site_Details_Enhancer {
     public function render_shortcode() {
         $dashboard_data = $this->get_all_sites_data();
         wp_add_inline_script('nsd-shortcode-script', 'const nsd_data = ' . wp_json_encode($dashboard_data) . ';', 'before');
+        
+        $show_chart = get_site_option('nsd_show_chart', '1') === '1';
+        $show_stats = get_site_option('nsd_show_stats', '1') === '1';
 
         ob_start();
         ?>
         <div id="nsd-dashboard-app">
-            <div class="nsd-chart-container"><canvas id="nsd-posts-chart"></canvas></div>
-            <div id="nsd-summary-cards" class="nsd-summary-grid"></div>
+            <?php if ($show_chart): ?>
+                <div class="nsd-chart-container"><canvas id="nsd-posts-chart"></canvas></div>
+            <?php endif; ?>
+            
+            <?php if ($show_stats): ?>
+                <div id="nsd-summary-cards" class="nsd-summary-grid"></div>
+            <?php endif; ?>
+
             <div class="nsd-controls-wrapper">
                 <div class="nsd-search-wrapper"><input type="text" id="nsd-search-input" placeholder="Search sites..."></div>
                 <div class="nsd-filters-wrapper">

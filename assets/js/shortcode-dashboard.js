@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isShowingActiveOnly = false;
 
     const elements = {
+        chartContainer: document.querySelector('.nsd-chart-container'),
         chartCanvas: document.getElementById('nsd-posts-chart'),
         summaryContainer: document.getElementById('nsd-summary-cards'),
         dataContainer: document.getElementById('nsd-data-container'),
@@ -30,8 +31,8 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     function init() {
-        renderPostChart();
-        renderSummaryCards();
+        if(elements.chartContainer) renderPostChart();
+        if(elements.summaryContainer) renderSummaryCards();
         populateYearFilter();
         attachEventListeners();
         render();
@@ -39,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderPostChart() {
         if (!elements.chartCanvas || !chartData || typeof Chart === 'undefined') return;
+        
         const ctx = elements.chartCanvas.getContext('2d');
         if (postChart) postChart.destroy();
         postChart = new Chart(ctx, {
@@ -70,13 +72,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderSummaryCards() {
+        if (!stats) {
+            if(elements.summaryContainer) elements.summaryContainer.style.display = 'none';
+            return;
+        }
         elements.summaryContainer.innerHTML = `
             <div class="nsd-summary-card"><div class="label">Total Sites</div><div class="value">${stats.total_sites}</div></div>
             <div class="nsd-summary-card"><div class="label">Total Posts</div><div class="value">${stats.total_posts.toLocaleString()}</div></div>
             <div class="nsd-summary-card nsd-clickable" id="nsd-active-sites-card"><div class="label">Active Sites (Last 3 Months)</div><div class="value">${stats.active_sites}</div></div>
             <div class="nsd-summary-card"><div class="label">Avg Posts/Site</div><div class="value">${stats.avg_posts}</div></div>
         `;
-        document.getElementById('nsd-active-sites-card').addEventListener('click', toggleActiveSitesFilter);
+        const activeSitesCard = document.getElementById('nsd-active-sites-card');
+        if(activeSitesCard) activeSitesCard.addEventListener('click', toggleActiveSitesFilter);
     }
     
     function populateYearFilter() {
@@ -103,15 +110,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 nonce: nsd_ajax.nonce
             }, function(response) {
                 if (response.success) {
-                    window.nsd_data = response.data; 
-                    allSites = window.nsd_data.sites;
-                    stats = window.nsd_data.stats;
-                    chartData = window.nsd_data.chart_data;
-                    isShowingActiveOnly = false;
-                    currentPage = 1;
-                    init();
+                    window.location.reload(); // Reload the page to get new data and settings
                 }
-            }).always(function() {
+            }).fail(function() {
+                alert('Failed to refresh data. Please try again.');
                 elements.refreshBtn.textContent = 'Refresh Data';
                 elements.refreshBtn.disabled = false;
             });
@@ -143,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const threeMonthsAgo = new Date();
         threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-        if (isShowingActiveOnly) {
+        if (isShowingActiveOnly && elements.summaryContainer) { // Only filter if stats are shown
             sites = sites.filter(site => new Date(site.last_updated) > threeMonthsAgo);
         }
         if (searchTerm) {

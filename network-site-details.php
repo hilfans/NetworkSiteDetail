@@ -3,7 +3,7 @@
  * Plugin Name: Network Site Details
  * Plugin URI: https://it.telkomuniversity.ac.id/
  * Description: Adds Post Count column to the Network Admin's All Sites screen and provides a shortcode for a detailed network report dashboard with caching.
- * Version: 3.9.0
+ * Version: 4.0.1
  * Author: Rihansen Purba, Ryan Gusman Banjarnahor, Zafran, Muhammad Kafaby, <a href="https://msp.web.id" target="_blank">Hilfan</a>
  * Author URI: https://github.com/rihansen11/NetworkSiteDetails
  * License: GPLv2 or later
@@ -188,11 +188,20 @@ class Network_Site_Details_Enhancer {
         global $post;
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'network_site_details_report')) {
             wp_enqueue_style('nsd-shortcode-styles', plugin_dir_url(__FILE__) . 'assets/css/shortcode-style.css', array(), '3.9.0');
+            
+            $chart_dependencies = array('jquery');
             $show_chart = get_site_option('nsd_show_chart', '1') === '1';
+
             if ($show_chart) {
-                wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js', array(), '4.4.0', true);
+                // 1. Daftarkan script Chart.js dari file lokal
+                wp_enqueue_script('chart-js', plugin_dir_url(__FILE__) . 'assets/js/chart.min.js', array(), '4.4.0', true);
+                
+                // 2. Tambahkan 'chart-js' sebagai dependensi untuk script dasbor
+                $chart_dependencies[] = 'chart-js';
             }
-            wp_enqueue_script('nsd-shortcode-script', plugin_dir_url(__FILE__) . 'assets/js/shortcode-dashboard.js', array('jquery'), '3.9.0', true);
+
+            // 3. Muat script dasbor dengan dependensi yang sudah benar
+            wp_enqueue_script('nsd-shortcode-script', plugin_dir_url(__FILE__) . 'assets/js/shortcode-dashboard.js', $chart_dependencies, '3.9.0', true);
             
             wp_localize_script('nsd-shortcode-script', 'nsd_ajax', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
@@ -304,8 +313,10 @@ class Network_Site_Details_Enhancer {
                     <select id="nsd-sort-by"><option value="post_count">Sort by Post Count</option><option value="last_updated">Sort by Last Update</option><option value="name">Sort by Site Name</option></select>
                     <select id="nsd-sort-order"><option value="desc">Desc</option><option value="asc">Asc</option></select>
                     <select id="nsd-filter-year"></select>
-                    <select id="nsd-per-page"><option>10</option><option>50</option><option>100</option></select>
-                    <span>per page</span>
+                    <div class="nsd-per-page-wrapper">
+                        <select id="nsd-per-page"><option>10</option><option>50</option><option>100</option></select>
+                        <span>per page</span>
+                    </div>
                 </div>
                 <div class="nsd-actions-wrapper">
                     <button id="nsd-refresh-btn" class="nsd-btn nsd-btn-primary">Refresh Data</button>

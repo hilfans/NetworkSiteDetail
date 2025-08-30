@@ -3,7 +3,7 @@ Contributors: rihansen11, ryangusman, hilfans0, dheaardn, ekobahran, meilinaeka,
 Tags: telkomuniversity, multisite, dashboard, export, data
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 3.6.2
+Stable tag: 3.7.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -38,7 +38,7 @@ Yes, this plugin is licensed under GPLv2 or later, so it is free to use and modi
 
 == Changelog ==
 
-= 3.6.2 =
+= 3.7.4 =
 
 Fix: Fixed a fatal error Call to undefined method WP_Site_Query::get() that reappeared on the Network Admin All Sites page by correcting how query variables are accessed.
 

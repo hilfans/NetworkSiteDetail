@@ -3,7 +3,7 @@ Contributors: rihansen11, ryangusman, hilfans0, dheaardn, ekobahran, meilinaeka,
 Tags: telkomuniversity, multisite, dashboard, export, data
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 4.0.1
+Stable tag: 4.0.6
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -36,7 +36,30 @@ Yes, this plugin is licensed under GPLv2 or later, so it is free to use and modi
 2. Subsite data table and Excel export button.
 3. Charts for post and visitor counts.
 
+== Credits ==
+
+This plugin uses the following third-party library to render beautiful and interactive charts:
+Chart.js - Simple yet flexible JavaScript charting for designers & developers. License: MIT. For more information, please visit https://www.chartjs.org/.
+
 == Changelog ==
+
+= 4.0.6 =
+
+Tweak - Add phpcs:ignore comments to resolve false positive warnings from the Plugin Check tool, ensuring full compliance with WordPress.org coding standards.
+
+= 4.0.5 =
+
+Fix - Address all remaining findings from the WordPress.org Plugin Check tool to meet repository guidelines.
+Security - Strengthen security by sanitizing $_GET parameters and admin query variables.
+Fix - Replace date() with gmdate() for timezone-independent date formatting, following WordPress standards.
+
+= 4.0.2 =
+
+Security - Harden the plugin by escaping all output data (esc_html, esc_url, etc.) to prevent potential XSS vulnerabilities, aligning with WordPress.org security requirements.
+
+= 4.0.1 =
+
+Tweak - Increase the dashboard data cache duration from 1 month to 3 months to further reduce server load on frequently accessed pages.
 
 = 3.7.4 =
 

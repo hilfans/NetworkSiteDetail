@@ -1,0 +1,290 @@
+/*
+ * Network Site Details Shortcode Styles
+ * Version: 2.5.0
+ */
+
+:root {
+    --telkom-red: #A31E21;
+    --telkom-dark-grey: #333333;
+    --telkom-light-grey: #f0f2f5;
+    --telkom-text: #4a4a4a;
+    --telkom-text-light: #7a7a7a;
+    --telkom-border: #e0e0e0;
+    --telkom-white: #ffffff;
+}
+
+#nsd-dashboard-app {
+    /* Menggunakan 'System Font Stack': Ini adalah cara modern dan efisien untuk menggunakan font default terbaik dari setiap sistem operasi tanpa memuat file eksternal. */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--telkom-light-grey);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+/* Chart Container */
+.nsd-chart-container {
+    background-color: var(--telkom-white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--telkom-border);
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    height: 300px;
+}
+
+/* Summary Cards */
+.nsd-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.nsd-summary-card {
+    background-color: var(--telkom-white);
+    padding: 1.25rem;
+    border-radius: 8px;
+    border: 1px solid var(--telkom-border);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.2s ease-in-out;
+}
+.nsd-summary-card.nsd-clickable:hover {
+    cursor: pointer;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+.nsd-summary-card.nsd-active-filter {
+    border-color: var(--telkom-red);
+    box-shadow: 0 0 0 3px rgba(163, 30, 33, 0.2);
+}
+.nsd-summary-card .label {
+    font-size: 0.85rem;
+    color: var(--telkom-text-light);
+    margin-bottom: 0.5rem;
+}
+.nsd-summary-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--telkom-red);
+}
+
+/* === REVISED CONTROLS SECTION === */
+
+/* Main wrapper for all controls */
+.nsd-controls-wrapper {
+    display: flex;
+    flex-direction: column; /* Stack vertically on mobile by default */
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--telkom-white);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--telkom-border);
+}
+
+/* --- Child Wrappers --- */
+.nsd-search-wrapper,
+.nsd-filters-wrapper,
+.nsd-actions-wrapper {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    gap: 0.75rem;
+}
+
+/* Align items within their wrappers */
+.nsd-search-wrapper {
+    flex-grow: 1; /* Allow search to take available space */
+}
+
+.nsd-filters-wrapper {
+    flex-grow: 2; /* Allow filters to take more space */
+    align-items: center;
+}
+
+.nsd-actions-wrapper {
+    flex-grow: 1;
+    justify-content: flex-start; /* Align to the left on mobile */
+}
+
+/* --- Individual Control Elements --- */
+.nsd-search-wrapper input,
+.nsd-filters-wrapper select {
+    width: 100%; /* Full width on mobile */
+    padding: 0.75rem;
+    border: 1px solid var(--telkom-border);
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    background-color: #fff;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+}
+
+/* Wrapper for "per page" dropdown and text */
+.nsd-per-page-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%; /* Full width on mobile */
+}
+.nsd-per-page-wrapper select {
+    flex-shrink: 0; /* Prevent the select from shrinking */
+    width: auto;
+    min-width: 80px;
+}
+.nsd-per-page-wrapper span {
+    color: var(--telkom-text-light);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.nsd-btn {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    text-align: center;
+    flex-grow: 1; /* Allow buttons to grow */
+}
+.nsd-btn-primary { background-color: var(--telkom-red); color: var(--telkom-white); }
+.nsd-btn-primary:hover { background-color: #8B1A1D; }
+.nsd-btn-primary:disabled { background-color: #cccccc; cursor: not-allowed; }
+
+
+.nsd-view-toggle {
+    display: flex;
+    flex-grow: 1;
+}
+.nsd-btn-icon {
+    background-color: #e9ecef;
+    color: var(--telkom-dark-grey);
+    padding: 0.75rem;
+    width: 50%;
+}
+.nsd-btn-icon:first-child { border-radius: 6px 0 0 6px; }
+.nsd-btn-icon:last-child { border-radius: 0 6px 6px 0; }
+.nsd-btn-icon.active { background-color: var(--telkom-dark-grey); color: var(--telkom-white); }
+
+/* --- Tablet Layout --- */
+@media (min-width: 768px) {
+    /* Make select and input auto width so they can sit side-by-side */
+    .nsd-search-wrapper input,
+    .nsd-filters-wrapper select,
+    .nsd-per-page-wrapper {
+        width: auto;
+    }
+
+    /* Make individual filters grow to fill space */
+    .nsd-filters-wrapper > select {
+        flex: 1;
+    }
+}
+
+/* --- Desktop Layout --- */
+@media (min-width: 1200px) {
+    .nsd-controls-wrapper {
+        flex-direction: row; /* Arrange horizontally on desktop */
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .nsd-search-wrapper {
+        min-width: 250px;
+        flex-grow: 1;
+    }
+    
+    .nsd-filters-wrapper {
+        justify-content: center;
+        flex-grow: 2;
+    }
+
+    .nsd-actions-wrapper {
+        justify-content: flex-end; /* Align to the right on desktop */
+        flex-grow: 1;
+    }
+
+    .nsd-btn {
+        flex-grow: 0; /* Buttons should not grow on desktop */
+    }
+
+    .nsd-view-toggle {
+        flex-grow: 0;
+    }
+}
+
+/* === END: REVISED CONTROLS SECTION === */
+
+
+/* Data Display */
+#nsd-data-container.nsd-grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+#nsd-data-container.nsd-list-view { display: block; }
+.nsd-card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+.nsd-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07); }
+.nsd-card-header { padding: 1.5rem; border-bottom: 1px solid #e5e7eb; }
+.nsd-card-header h2 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+.nsd-card-header h2 a { text-decoration: none; color: var(--telkom-red); transition: color 0.2s; }
+.nsd-card-header h2 a:hover { color: var(--telkom-dark-grey); }
+.nsd-card-url { font-size: 0.875rem; color: #6b7280; margin: 0.25rem 0 0; word-break: break-all; }
+.nsd-card-body { padding: 1.5rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; flex-grow: 1; }
+.nsd-stat { background-color: #f9fafb; padding: 1rem; border-radius: 0.5rem; text-align: center; }
+.nsd-stat-label { display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; }
+.nsd-stat-value { display: block; font-size: 1.875rem; font-weight: 700; color: var(--telkom-dark-grey); }
+.nsd-stat-value-small { display: block; font-size: 1rem; color: #374151; }
+.nsd-stat-full { grid-column: 1 / -1; }
+.nsd-list-table { width: 100%; border-collapse: collapse; background: var(--telkom-white); border-radius: 8px; overflow: hidden; border: 1px solid var(--telkom-border); }
+.nsd-list-table th, .nsd-list-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--telkom-border); }
+.nsd-list-table th { background-color: #f8f9fa; font-weight: 600; color: var(--telkom-text-light); }
+.nsd-list-table tr:last-child td { border-bottom: none; }
+.nsd-list-table tr:hover { background-color: #f1f3f5; }
+.nsd-no-results { padding: 2rem; text-align: center; color: var(--telkom-text-light); }
+
+/* Pagination */
+.nsd-pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.nsd-pagination-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--telkom-border);
+    background: var(--telkom-white);
+    cursor: pointer;
+    border-radius: 4px;
+    color: var(--telkom-text) !important;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+.nsd-pagination-btn.active {
+    background-color: var(--telkom-red);
+    color: var(--telkom-white) !important;
+    border-color: var(--telkom-red);
+}
+.nsd-pagination-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+.nsd-page-info {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    color: var(--telkom-text-light);
+}

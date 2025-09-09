@@ -1,5 +1,5 @@
 === Network Site Details ===
-Contributors: rihansen11, ryangusman, hilfans0, dheaardn, ekobahran, meilinaeka, ajidmujaddid, zhafranilham, hilfans, telkomuniversity
+Contributors: rihansen11, ryangusman, hilfans0, dheaardn, ekobahran, meilinaeka, ajidmujaddid, zhafranilham, hilfans, digiwuz, telkomuniversity
 Tags: telkomuniversity, multisite, dashboard, export, data
 Requires at least: 5.0
 Tested up to: 6.8
@@ -7,6 +7,7 @@ Stable tag: 4.0.6
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Donate link: https://endowment.telkomuniversity.ac.id/donasi-langsung/
 
 A centralized dashboard for managing and exporting data from all subsites in a WordPress Multisite network. Includes Excel export and visual charts.
 
